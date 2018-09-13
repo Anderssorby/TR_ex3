@@ -3,6 +3,9 @@ title: "Analysis of ARMA(2,1) process"
 subtitle: "TMA4285 Time series models - Exercise 3"
 author: Anders Christiansen Sørby, Edvard Hove
 #bibliography: mybiblio.bib
+header-includes:
+  - \usepackage{dsfont}
+  - \DeclareMathOperator*{\E}{\mathbb{E}}
 output: pdf_document
 keep_tex: true
 ---
@@ -16,13 +19,58 @@ Blabla
 # Introduction
 
 ## The ARMA process
-A stationary process \(\{X_t\}\) is an \(ARMA(2,1)\) process if the following relation exists
+A stationary process \(\{X_t\}\) is an \(ARMA(p,q)\) process if the following relation exists
+
+\begin{equation}
+\phi(B)X_t = \theta(B)Z_t
+\label{eq:arma}
+\end{equation}
+
+where \(Z_t \sim \bf{WN}(0, \sigma^2)\), and \(\phi(\cdot)\) and \(\theta(\cdot)\) are polynomials (with no common factors) given by
+
+\begin{equation}
+\phi(z) = 1 - \phi_1 z - \phi_2 z^2 - \dots - \phi_p z^p
+\end{equation}
+
+and
+\begin{equation}
+\theta(z) = 1 + \theta_1 z + \theta_2 z^2 +  \dots + \theta_q z^q,
+\end{equation}
+
+and B is the backward shift operator. That is \(B^j X_t = X_{t-j}, j \in \mathds{Z}\).
+
+In particular an \(ARMA(2,1)\) process is given by
 $$
-X_t -\phi_1 X_{t-1} - \phi_2 X_{t-2} = Z_t - \theta_1 Z_{t-1}
+X_t -\phi_1 X_{t-1} - \phi_2 X_{t-2} = Z_t + \theta_1 Z_{t-1}
 $$
-where \(Z_t \sim \bf{WN}(0, \sigma^2)\).
 
 # Theory
+An expression for \(\{X_t\}\) satisfying equation \eqref{eq:arma} on the form
+
+\begin{equation}
+X_t = \sum_{j = -\infty}^\infty \psi_j Z_{t-j}
+\end{equation}
+
+is said to be a stationary solution. A stationary solution exists, and is also unique, if no roots of the autoregressive polynomial \(\phi(z)\) lie on the unit circle. If \(X_t\) can be expressed in terms of \(Z_s,s \leq t\) we say that the process is causal. Such an expression is guaranteed to exist if no roots of \(phi(z)\) lie on the unit disk.
+Include how the \(\phi \theta\) is estimated
+
+## Model parameter estimation
+The \(ARMA(2,1)\) process (with zero mean) consists of 4 parameters that need to be estimated. That is \(\phi_1, \phi_2, \theta_1 \text{ and } \sigma^2\). This can be done in a number of ways. A simple and consistent way is the method of moments. The idea is to take the expected value of the expression of \(X_t\) multiplied with \(X_{t-h}\).
+
+\begin{equation}
+{\E}[X_t X_{t-h}] = {\E}[(Z_t + \theta_1 Z_{t-1} + \phi_1 X_{t-1} + \phi_2 X_{t-2})X_{t-h}]
+\end{equation}
+
+This then gives a set of equations containing the autocovariance function  \(\gamma(h)\) and the parameters. By using the sample autocovariance function \(\hat \gamma(h)\) in place of the autocovariance function we can solve the equations, resulting in estimates of the parameters of interest.
+
+The estimators found using this method may be biased and they often have high variance compared to other estimators. They are however useful as first approximations in numerical methods of estimation.
+
+Another way is to use the maximum likelihood estimators.
+
+
+REPEATED ESTIMATION ON SIMULATED DATA COMES HERE:
+
+NOT ENTIRELY SURE HOW THIS INNOV ARGUMENT WORKS, BUT arima(xsim,order=c(2,0,1)) SEEMS TO AGREE WITH arima.
 
 We need to confirm that a given process is indeed an $ARMA(2,1)$
 
@@ -33,17 +81,15 @@ x = read.table("DataEx3G8.txt")
 # Data analysis
 The language R has many built-in functions for analysing timeseries. 
 
-## Our data
-
 Our recieved realization of the process can be seen in the next plot.
 
 ```{r TSMplot, echo=FALSE}
-plot(seq(1,500),x[,1],type="l")
+plot(seq(1,500),x[,1],type="l", xlab="t", ylab="X_t")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
 ```{r lagplot, echo=FALSE}
-lag.plot(x[,1],12)
+lag.plot(x[,1], 9, diag.col = "red")
 ```
 
 ```{r arma}
@@ -62,6 +108,13 @@ c=2*pi/p
 y=asin(c*x[,1])
 ```
 
+```{r armasim}
+xsim <- arima.sim(n=500, list(ar=c(arima$coef[1],arima$coef[2]), ma=arima$coef[3]),innov=rnorm(1000, sd=sqrt(arima$sigma2)))
+plot(xsim)
+```
+
+## Model prediction
+
 
 # Discussion
 
@@ -75,6 +128,7 @@ This was ..
 # Appendix
 
 Everything not in the main section
+This also includes R-code as a whole
 
-# Refrences
+# References
 
