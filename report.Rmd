@@ -1,28 +1,41 @@
 ---
-title: "exercise3"
-bibliography: mybiblio.bib
-output: 
-pdf_document: 
+title: "Analysis of ARMA(2,1) process"
+subtitle: "TMA4285 Time series models - Exercise 3"
+author: Anders Christiansen Sørby, Edvard Hove
+#bibliography: mybiblio.bib
+output: pdf_document
 keep_tex: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Abstract
+Blabla
 
-## R Markdown
+# Introduction
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## The ARMA process
+A stationary process \(\{X_t\}\) is an \(ARMA(2,1)\) process if the following relation exists
+$$
+X_t -\phi_1 X_{t-1} - \phi_2 X_{t-2} = Z_t - \theta_1 Z_{t-1}
+$$
+where \(Z_t \sim \bf{WN}(0, \sigma^2)\).
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Theory
+
+We need to confirm that a given process is indeed an $ARMA(2,1)$
+
 
 ```{r read, echo=FALSE}
 x = read.table("DataEx3G8.txt")
 ```
+# Data analysis
+The language R has many built-in functions for analysing timeseries. 
 
-## Including Plots
+## Our data
 
-You can also embed plots, for example:
+Our recieved realization of the process can be seen in the next plot.
 
 ```{r TSMplot, echo=FALSE}
 plot(seq(1,500),x[,1],type="l")
@@ -46,5 +59,22 @@ lines(n,s)
 ```{r transform}
 p=10
 c=2*pi/p
-y=arcsin(c*x[,1])
+y=asin(c*x[,1])
 ```
+
+
+# Discussion
+
+Bla bla
+
+
+# Conclusion
+
+This was ..
+
+# Appendix
+
+Everything not in the main section
+
+# Refrences
+
