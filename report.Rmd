@@ -116,10 +116,26 @@ xsim <- arima.sim(n=500, list(ar=c(arima$coef[1],arima$coef[2]), ma=arima$coef[3
 plot(xsim)
 ```
 
-Using the function `arima` we get the MLE parameter estimates for our underlying distribution. 
-```{arimamodel}
+Using the function `arima` we get MLE parameter estimates for our the underlying distribution. 
+```{r arimamodel}
 print(arima)
 ```
+
+We can then check the causality criterion by solving
+\begin{equation}
+\phi(z) = 1 - `r sprintf('%.3f', arima$coef[1])`z + `r sprintf('%.3f', abs(arima$coef[2]))`z^2 =0,
+\end{equation}
+
+```{r roots, include=FALSE}
+z_1=(arima$coef[1]-sqrt(arima$coef[1]^2 +4*arima$coef[2]))/(-2*arima$coef[2])
+z_2=(arima$coef[1]+sqrt(arima$coef[1]^2 +4*arima$coef[2]))/(-2*arima$coef[2])
+```
+
+which gives us the roots \(z_1 \approx `r sprintf('%.3f', z_1)`\) and \(z_2 \approx `r sprintf('%.3f', z_2)`\). Since both these roots are outside the unit disk there exists an expression for \(X_t\) on the form
+
+\begin{equation}
+X_t = \sum _{i=0}^\infty \psi_{i}Z_{t-i}
+\end{equation}
 
 ## Model prediction
 
