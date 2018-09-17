@@ -148,13 +148,25 @@ Given the two preciding values and our estimated \(Z_t\sim\bf{WN}(0, \sigma^2)\)
 
 ```{r prediction}
 source('Zestimates.R')
+est <- estimateZ(x)
+
+plot(est)
 print(est)
+Z <- est$Z
 pred <- rep(0, 497)
-residual <- rep(0,497)
-for (i in seq(3,m+3)) {
+residuals <- rep(0,497)
+for (i in seq(3,est$m+3)) {
   pred[i-2] <- phi1*x[i-1] + phi2*x[i-2] + Z[i] + theta1*Z[i-1]
-  residual[i-2] <- x[i] - pred[i-2]
+  residuals[i-2] <- x[i] - pred[i-2]
 }
+```
+```{r prediction-plot}
+library(latex2exp)
+
+plot(pred, main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "t", type = "l", col="blue")
+lines(x[3:500], type = "l", col="red")
+
+plot(residuals)
 
 ```
 

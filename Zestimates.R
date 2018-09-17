@@ -1,10 +1,8 @@
-x <- read.table("DataEx3G8.txt")
-
-estimateZ <- function(X) {
+estimateZ <- function(x, n = 20) {
   arima <- arima(x,order=c(2,0,1))
   
-  n <- 20 # number of pi-coeff to be calculated
-  m <- nrow(x)-n # number of Z values to be estimated
+  # n number of pi-coeff to be calculated
+  m <- length(x)-n # number of Z values to be estimated
   
   phi1 <- arima$coef[1]
   phi2 <- arima$coef[2]
@@ -31,20 +29,25 @@ estimateZ <- function(X) {
   # estimates Z for t>=n
   Z <- vector(length=m) 
   for (i in seq(1,m)){
-    Z[i] <- t(pi)%*%x[(n+i-1):i,1]
+    Z[i] <- t(pi)%*%x[(n+i-1):i]
   }
-  res <- list(Z=Z, pi=pi)
+  res <- list(Z=Z, pi=pi, m = m)
   class(res) <- "zestimate"
   return(res)
 }
 
 plot.zestimate <- function(obj, ...) {
   # Normal Q-Q plot
+  Z <- obj$Z
+  
   qqnorm(Z/sd(Z))
   qqline(Z/sd(Z),col = 2) 
 }
 
-est <- estimateZ(X)
+print.zestimate <- function(obj, ...) {
+  print("Estimate of Z for ARMA(2,1)")
+  print(obj$Z)
+}
 
-plot(est)
+
 
