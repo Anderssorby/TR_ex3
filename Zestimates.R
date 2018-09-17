@@ -1,8 +1,8 @@
 x <- read.table("DataEx3G8.txt")
 arima <- arima(x,order=c(2,0,1))
 
-n <- 20 # number of pi-coeff to be estimated
-m <- nrow(x)-n # number of Z to be estimated
+n <- 20 # number of pi-coeff to be calculated
+m <- nrow(x)-n # number of Z values to be estimated
 
 phi1 <- arima$coef[1]
 phi2 <- arima$coef[2]
