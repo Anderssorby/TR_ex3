@@ -94,6 +94,10 @@ lag.plot(x[,1], 9, diag.col = "red")
 
 ```{r arma}
 arima=arima(x,order=c(2,0,1))
+
+phi1 <- arima$coef[1]
+phi2 <- arima$coef[2]
+theta1 <- arima$coef[3]
 ```
 ```{r acvf}
 lag.max=100
@@ -139,6 +143,18 @@ X_t = \sum _{i=0}^\infty \psi_{i}Z_{t-i}
 
 ## Model prediction
 
+Given the two preciding values and our estimated \(Z_t\sim\bf{WN}(0, \sigma^2)\)-values we can predict the next value of the time series and compare them to the actual value.
+
+```{r prediction}
+source('Zestimates.R')
+pred <- rep(0, 497)
+residual <- rep(0,497)
+for (i in seq(3,500)) {
+  pred[i-2] <- phi1*x[,i-1] + phi2*x[,i-2] + Z[i] + theta1*Z[i-1]
+  residual[i-2] <- x[,i] - pred[i-2]
+}
+
+```
 
 # Discussion
 
