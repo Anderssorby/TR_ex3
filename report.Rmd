@@ -179,25 +179,41 @@ est <- estimateZ(x)
 plot(est)
 #print(est)
 Z <- est$Z
+Znew <- rnorm(500,sd=est$sd)
+
 m <- est$m
 n <- est$n
 l <- est$l
-pred <- rep(0, l)
-residuals <- rep(0,l)
-
-for (i in seq(n+1, l)) {
-  pred[i] <- phi1*x[i-1] + phi2*x[i-2] + Z[i] + theta1*Z[i-1]
-  residuals[i] <- x[i] - pred[i]
+prod_arma <- function(Z, n){
+  pred <- rep(0, l)
+  residuals <- rep(0,l)
+  
+  for (i in seq(max(n+1,3), l)) {
+    pred[i] <- phi1*x[i-1] + phi2*x[i-2] + Z[i] + theta1*Z[i-1]
+    residuals[i] <- x[i] - pred[i]
+  }
+  res <- list(pred=pred, residuals=residuals)
+  class(res) <- "prod_arma"
+  return(res)
 }
+
+res1 <- prod_arma(Z, n=n)
+res2 <- prod_arma(Znew, n=0)
+
 ```
 ```{r prediction-plot}
 library(latex2exp)
 
-plot(pred[n+1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "t", type = "l", col="blue")
-lines(x[n+1:l], type = "l", col="red")
-
-plot(residuals[n+1:l])
-
+plot.arma_prod <- function(prod) {
+  pred <- prod$pred
+  residuals <- prod$residuals
+  plot(pred[n+1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "t", type = "l", col="blue")
+  lines(x[n+1:l], type = "l", col="red")
+  
+  plot(residuals[n+1:l])
+}
+plot.arma_prod(res1)
+plot.arma_prod(res2)
 ```
 
 # Discussion
