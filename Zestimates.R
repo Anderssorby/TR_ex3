@@ -2,20 +2,13 @@ estimateZ <- function(x, n = 20) {
   arima <- arima(x,order=c(2,0,1))
   
   # n number of pi-coeff to be calculated
-  m <- length(x)-n # number of Z values to be estimated
+  l <- length(x)
+  m <- l-n # number of Z values to be estimated
   
   phi1 <- arima$coef[1]
   phi2 <- arima$coef[2]
   theta1 <- arima$coef[3]
-  #
-  #M <- matrix(data=0, ncol=10,nrow=10)
-  #M[1,1] <- 1
-  #M[2,1] <- -phi1-theta1
-  #M[3,1] <- 
-  #
-  #for (i in seq(2,10))
-  #
-  
+  sigma2 <- arima$sigma2
   
   # calculates n coefficients of pi
   pi <- vector(length=n) 
@@ -27,11 +20,11 @@ estimateZ <- function(x, n = 20) {
   }
   
   # estimates Z for t>=n
-  Z <- vector(length=m) 
-  for (i in seq(1,m)){
-    Z[i] <- t(pi)%*%x[(n+i-1):i]
+  Z <- rep(0,l) 
+  for (t in seq(n,l)){
+    Z[t] <- t(pi)%*%x[t:(t-n+1)]
   }
-  res <- list(Z=Z, pi=pi, m = m)
+  res <- list(Z=Z, pi=pi, m = m, n = n, sigma2 = sigma2, sd = sqrt(sigma2), l = l)
   class(res) <- "zestimate"
   return(res)
 }
@@ -39,9 +32,10 @@ estimateZ <- function(x, n = 20) {
 plot.zestimate <- function(obj, ...) {
   # Normal Q-Q plot
   Z <- obj$Z
+  sigma <- obj$sd
   
-  qqnorm(Z/sd(Z))
-  qqline(Z/sd(Z),col = 2) 
+  qqnorm(Z/sigma)
+  qqline(Z/sigma,col = 2) 
 }
 
 print.zestimate <- function(obj, ...) {
