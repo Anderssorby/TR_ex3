@@ -1,5 +1,5 @@
 ---
-title: "Analysis of ARMA(2,1) process"
+title: "Analysis of an ARMA process"
 subtitle: "TMA4285 Time series models - Exercise 3"
 author: Anders Christiansen Sørby, Edvard Hove
 #bibliography: mybiblio.bib
@@ -180,7 +180,7 @@ lines(seq(0,lag.max),ARMAacf(ar=ar,ma=ma,lag.max=lag.max),pacf=TRUE,col=2,lty=3)
 ```
 
 ```{r armasim}
-xsim <- arima.sim(n=500, list(ar=ar, ma=ma),innov=rnorm(1000, sd=sigma),start.innov=rnorm(100, sd=sigma))
+xsim <- arima.sim(n=500, list(ar=ar, ma=ma,order=c(2,0,1)),sd=sigma)
 plot(xsim)
 ```
 
@@ -227,7 +227,7 @@ prod_arma <- function(Z, n){
   residuals <- rep(0,l)
   
   for (i in seq(max(n+1,3), l)) {
-    pred[i] <- phi1*x[i-1] + phi2*x[i-2] + Z[i] + theta1*Z[i-1]
+    pred[i] <- phi1*pred[i-1] + phi2*pred[i-2] + Z[i] + theta1*Z[i-1]
     residuals[i] <- x[i] - pred[i]
   }
   res <- list(pred=pred, residuals=residuals)
@@ -250,7 +250,6 @@ plot.arma_prod <- function(prod) {
   
   plot(residuals[n+1:l])
 }
-plot.arma_prod(res1)
 plot.arma_prod(res2)
 ```
 
