@@ -5,6 +5,7 @@ author: Anders Christiansen Sørby, Edvard Hove
 #bibliography: mybiblio.bib
 header-includes:
   - \usepackage{dsfont}
+  - \usepackage{bm}
   - \DeclareMathOperator*{\E}{\mathbb{E}}
 output: pdf_document
 keep_tex: true
@@ -114,7 +115,11 @@ This then gives a set of equations containing the autocovariance function  \(\ga
 
 The estimators found using this method may be biased and they often have high variance compared to other estimators. They are however useful as first approximations in numerical methods of estimation.
 
-Another way is to use the maximum likelihood estimators.
+Another way is to use the maximum likelihood estimators. The Gaussian likelihood for an ARMA process is given by
+
+\begin{equation}
+L(\bm\phi, \bm\theta, \sigma^2) = \frac{1}{\sqrt{(2\pi\sigma^2)^n r_0\hdots   r_{n-1}}}\text{exp}\left(\frac{-1}{2\sigma^2}\sum_{j=1}^n\frac{(X_j-\hat X_j)^2}{r_{j-1}}\right)
+\end{equation}
 
 
 REPEATED ESTIMATION ON SIMULATED DATA COMES HERE:
@@ -251,7 +256,7 @@ plot.arma_prod(res2)
 
 ``` {r forecasting}
 fore <- predict(arima,20)
-ts.plot(c(x,fore$pred),col=1:2,xlim=c(400,520))
+ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,520))
 U <- fore$pred+fore$se
 L <- fore$pred-fore$se
 xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
