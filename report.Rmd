@@ -75,7 +75,7 @@ which can only be satisfied if \(\phi(B)\psi(B) = \theta(B)\). For an \(ARMA(2,1
 Two polynomials are only equal if all of their coefficients are equal, which gives us the following expressions for \(\psi_i\)
 
 \begin{equation}
-\label{eq:phicases}
+\label{eq:psicases}
   \psi_i = 
   \begin{cases}
     1, & i=0\\
@@ -222,18 +222,34 @@ z_1=(phi1-sqrt(phi1^2 +4*phi2))/(-2*phi2)
 z_2=(phi1+sqrt(phi1^2 +4*phi2))/(-2*phi2)
 ```
 
-which gives us the roots \(z_1 \approx `r sprintf('%.3f', z_1)`\) and \(z_2 \approx `r sprintf('%.3f', z_2)`\). Since both these roots are outside the unit disk there exists an expression for \(X_t\) on the form
+which gives us the roots \(z_1 \approx `r sprintf('%.3f', z_1)`\) and \(z_2 \approx `r sprintf('%.3f', z_2)`\). Since both these roots are outside the unit disk, \(X_t\) can be expressed as an \(MA(\infty)\) given by equation \eqref{eq:psi}.
 
-
-
-Since the MA polynomial \(\theta(z)\) has the single root \(z \approx `r sprintf('%.3f', 1/theta1)`\), \(X_t\) is also invertable, which means \(Z_t\) can be given by
-
+Likewise, since the MA polynomial \(\theta(z)\) has the single root \(z \approx `r sprintf('%.3f', 1/theta1)`\), \(X_t\) is also invertable, which means \(Z_t\) can be expressed as an \(AR(\infty)\) by equation \eqref{eq:pi}.
 
 ## Model prediction
 
-Given the two preciding values and our estimated \(Z_t\sim\bf{WN}(0, \sigma^2)\)-values we can predict the next value of the time series and compare them to the actual value.
+The one-step ahead predictors, of an \(AR(p)\) process is easily found by considering the conditional expected value,
 
-```{r prediction}
+\begin{equation}
+{\E}[X_{n+1}|X_n,X_{n-1},\hdots,X_1] = {\E}[Z_{n+1}-\sum_{i=1}^p \phi_{i}X_{n+1-i}|X_n,X_{n-1},\hdots,X_1]
+\end{equation}
+
+which immediately gives the one-step ahead predictor for the \(AR(p)\) process
+
+\begin{equation}
+\hat X_{n+1} = \sum_{i=1}^p \phi_{i}X_{n+1-i}.
+\end{equation}
+
+From equation \eqref{eq:pi} we then get the one-step ahead predictor of our model
+
+\begin{equation}
+\hat X_{n+1} = \sum_{i=1}^{\infty} \pi_{i}X_{n+1-i},
+\end{equation}
+
+where the coefficients \(\pi_i\) are given by equation \eqref{eq:picases}.
+\ref{fig:prediction}
+
+```{r prediction,fig.cap="\\label{fig:prediction}"}
 source('Zestimates.R')
 n<- 20 
 est <- estimateZ(x,n)
@@ -266,12 +282,13 @@ xhat <- x-x
 for(i in seq(2,500)){
   xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
 }
-plot(x,col=2,type="l",xlim=c(400,500),main="One step predictions",ylab=TeX("X_t,\\hat{X}_t"),xlab="Time")
+plot(x,col=2,type="l",xlim=c(400,500),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t"),xlab="Time")
 lines(xhat,col=4)
+lines(Z,col=3)
 ```
 <!--
 # ```{r one step predictions}
-# xhat<- (x - arima$residuals) #mangler muligens en faktor sqrt(r(phi,theta))
+# xhatt<- (x - arima$residuals) #mangler muligens en faktor sqrt(r(phi,theta))
 # ts.plot(x,xhat,col=c(2,4),xlim=c(400,500))
 # ```
 -->
