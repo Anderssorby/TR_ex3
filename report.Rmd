@@ -261,14 +261,14 @@ which immediately gives the one-step ahead predictor for the \(AR(p)\) process
 \hat X_{n+1} = \sum_{i=1}^p \phi_{i}X_{n+1-i}.
 \end{equation}
 
-From equation \eqref{eq:pi} we then get the one-step ahead predictor of our model
+Since our \(ARMA(2,1)\) model is invertible, it can be expressed as an \(AR(\infty)\). Hence the one-step ahead predictor can be given as 
 
 \begin{equation}
 \hat X_{n+1} = \sum_{i=1}^{\infty} \pi_{i}X_{n+1-i},
 \end{equation}
 
 where the coefficients \(\pi_i\) are given by equation \eqref{eq:picases}.
-\ref{fig:prediction}
+In figure \ref{fig:prediction} we plot the process \(X_t\) in red along with the one-step ahead predictions \(\hat{X_t}\) in blue. 
 
 ```{r prediction,fig.cap="\\label{fig:prediction}"}
 source('Zestimates.R')
@@ -303,7 +303,7 @@ xhat <- x-x
 for(i in seq(2,500)){
   xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
 }
-plot(x,col=2,type="l",xlim=c(400,500),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t"),xlab="Time")
+plot(x,col=2,type="l",xlim=c(1,50),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t"),xlab="Time")
 lines(xhat,col=4)
 lines(Z,col=3)
 ```
