@@ -171,7 +171,9 @@ lag.plot(x, 9, diag.col = "red")
 ```
 
 ```{r arma}
-arima=arima(x,order=c(2,0,1))
+ordr <-c(2,0,1)
+
+arima=arima(x,order=ordr)
 
 phi1 <- arima$coef[1]
 phi2 <- arima$coef[2]
@@ -203,7 +205,7 @@ lines(seq(1,lag.max),ARMAacf(ar=ar,ma=ma,lag.max=lag.max,pacf=TRUE),col=2,lty=3)
 ```
 
 ```{r armasim}
-xsim <- arima.sim(n=500, list(ar=ar, ma=ma,order=c(2,0,1)),sd=sigma)
+xsim <- arima.sim(n=500, list(ar=ar, ma=ma, order=ordr), sd=sigma)
 plot(xsim)
 
 n_sim <- 100
@@ -211,8 +213,8 @@ ts_sims_arima <- NULL
 ts_sims_param <- matrix(data = 0, ncol=3, nrow=n_sim, dimnames = list(NULL, c("phi1", "phi2", "theta1")))
 
 for (i in 1:n_sim) {
-  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma,order=c(2,0,1)),sd=sigma)
-  ts <- arima(ts_sim, order = c(2,0,1))
+  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma, order=ordr),sd=sigma)
+  ts <- arima(ts_sim, order = ordr)
   ts_sims_arima <- c(ts_sims_arima, ts)
   phi1 <- ts$coef[1]
   phi2 <- ts$coef[2]
@@ -268,9 +270,15 @@ Since our \(ARMA(2,1)\) model is invertible, it can be expressed as an \(AR(\inf
 \end{equation}
 
 where the coefficients \(\pi_i\) are given by equation \eqref{eq:picases}.
-In figure \ref{fig:prediction} we plot the process \(X_t\) in red along with the one-step ahead predictions \(\hat{X_t}\) in blue. 
+In figure \ref{fig:onestep} we plot the process \(X_t\) in red along with the one-step ahead predictions \(\hat{X_t}\) in blue. The prediction tends to be slightly closer to the x-axis than the process itself, especially for the more extreme values. Intuitively this makes sense since the process' extreme values occur around extreme values for the underlying white noise, which the prediction expects to be zero. 
 
-```{r prediction,fig.cap="\\label{fig:prediction}"}
+The prediction operator \(P(\cdot|W)\) has the property
+
+\begin{equation}
+{\E}[(U-P(U|W))^2] = var(U) - \bm{a}'\text{cov}(U,W)
+\end{equation}
+
+```{r prediction}
 source('Zestimates.R')
 n<- 500
 est <- estimateZ(x,n)
@@ -298,14 +306,16 @@ prod_arma <- function(Z, n){
 
 res1 <- prod_arma(Z, n=n)
 res2 <- prod_arma(Znew, n=0)
+```
 
-xhat <- x-x
+```{r onestep,fig.cap="\\label{fig:onestep}"}
+xhat <- rep(0,l)
 for(i in seq(2,500)){
   xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
 }
 plot(x,col=2,type="l",xlim=c(1,500),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
 lines(xhat,col=4)
-lines(Z,col=3)
+#lines(Z,col=3)
 ```
 <!--
 # ```{r one step predictions}
@@ -321,7 +331,7 @@ lines(Z,col=3)
 plot.arma_prod <- function(prod) {
   pred <- prod$pred
   residuals <- prod$residuals
-  plot(pred[1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "t", type = "l", col="blue")
+  plot(pred[1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "Time", type = "l", col="blue")
   lines(x[1:l], type = "l", col="red")
   
   plot(residuals[1:l])
@@ -330,7 +340,7 @@ plot.arma_prod(res2)
 ```
 
 ``` {r forecasting}
-fore <- predict(arima,20)
+fore <- predict(arima,10)
 ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,520))
 U <- fore$pred+fore$se
 L <- fore$pred-fore$se
