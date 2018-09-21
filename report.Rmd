@@ -44,9 +44,9 @@ and
 and B is the backward shift operator. That is \(B^j X_t = X_{t-j}, j \in \mathds{Z}\).
 
 In particular an \(ARMA(2,1)\) process is given by
-$$
+\begin{equation}
 X_t -\phi_1 X_{t-1} - \phi_2 X_{t-2} = Z_t + \theta_1 Z_{t-1}
-$$
+\end{equation}
 
 # Theory
 A stationary solution of a process \(\{X_t | t \in \mathds{Z}\}\) satisfying equation \eqref{eq:arma} can be expressed on the form
@@ -105,6 +105,27 @@ In the same way as for \(\phi_i\), we can find the expressions for \(\pi_i\)
     -\theta_1\pi_{i-1}, & i>2
   \end{cases}
 \end{equation}
+
+When the coefficients for \(\psi_i\) are known, the autocovariance function is easily found to be
+
+\begin{equation}
+\gamma(h)=\E(X_t,X_{t-h}) = E[(\sum _{i=0}^\infty \psi_{i}Z_{t-i})(\sum _{j=0}^\infty \psi_{j}Z_{t-h-j})] = \sum_{i=0}^\infty \sigma^2\psi_{i+h}\psi_i.
+\end{equation}
+
+Often times it is useful to have a closed form expression for \(\gamma(h)\). Such an expression can be found by considering 
+
+\begin{equation}
+\label{eq:gamma}
+\E[X_{t-h}\phi(B)X_t] = \E[X_{t-h}\theta(B)Z_t].
+\end{equation}
+
+For a causal process, we know that \(X_{t-h}\) and \(\theta(B)Z_t\) are uncorrelated for \(h>q\), hence
+
+\begin{equation}
+\gamma(h)=\phi_1\gamma(h-1)+\dots+\phi_p\gamma(h-p).
+\end{equation}
+
+which gives \(\gamma(h)\) from \(\gamma(0),\hdots,\gamma(p-1\) (which can be found by solving the set of equations from \eqref{eq:gamma} where \(h<p\)). 
 
 ## Model parameter estimation
 The \(ARMA(2,1)\) process (with zero mean) consists of 4 parameters that need to be estimated. They are \(\phi_1, \phi_2, \theta_1 \text{ and } \sigma^2\). This can be done in a number of ways. A simple and consistent way is the method of moments. The idea is to take the expected value of the expression of \(X_t\) multiplied with \(X_{t-h}\).
