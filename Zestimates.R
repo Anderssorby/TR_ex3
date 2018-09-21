@@ -21,8 +21,8 @@ estimateZ <- function(x, n = 20) {
   
   # estimates Z for t>=n
   Z <- rep(0,l) 
-  for (t in seq(n,l)){
-    Z[t] <- t(pi)%*%x[t:(t-n+1)]
+  for (t in seq(1,l)){
+    Z[t] <- t(pi)[1:min(n,t)]%*%x[t:max(1,(t-n+1))]
   }
   res <- list(Z=Z, pi=pi, m = m, n = n, sigma2 = sigma2, sd = sqrt(sigma2), l = l)
   class(res) <- "zestimate"

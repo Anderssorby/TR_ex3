@@ -272,7 +272,7 @@ In figure \ref{fig:prediction} we plot the process \(X_t\) in red along with the
 
 ```{r prediction,fig.cap="\\label{fig:prediction}"}
 source('Zestimates.R')
-n<- 20 
+n<- 500
 est <- estimateZ(x,n)
 
 plot(est)
@@ -303,7 +303,7 @@ xhat <- x-x
 for(i in seq(2,500)){
   xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
 }
-plot(x,col=2,type="l",xlim=c(1,50),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t"),xlab="Time")
+plot(x,col=2,type="l",xlim=c(1,500),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
 lines(xhat,col=4)
 lines(Z,col=3)
 ```
@@ -321,10 +321,10 @@ lines(Z,col=3)
 plot.arma_prod <- function(prod) {
   pred <- prod$pred
   residuals <- prod$residuals
-  plot(pred[n+1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "t", type = "l", col="blue")
-  lines(x[n+1:l], type = "l", col="red")
+  plot(pred[1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "t", type = "l", col="blue")
+  lines(x[1:l], type = "l", col="red")
   
-  plot(residuals[n+1:l])
+  plot(residuals[1:l])
 }
 plot.arma_prod(res2)
 ```
