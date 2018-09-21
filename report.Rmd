@@ -167,9 +167,10 @@ For large samples the maximum likelihood estimator \(\hat\beta\) of \(\beta := (
 
 The covariance matrix \(n^{-1}V(\beta)\) can be approximated by \(2H^{-1}(\beta)\), where H is the Hessian matrix. As an alternative to using these asymptotic formulas, we will instead compute confidence bounds for the parameters by repeated estimation on simulated data for parameters equal to our estimates. 
 
+<!--
 REPEATED ESTIMATION ON SIMULATED DATA COMES HERE:
 We need to confirm that a given process is indeed an $ARMA(2,1)$
-
+-->
 ##Model choice
 
 
@@ -189,7 +190,8 @@ Our recieved realization of the process can be seen in the next plot.
 plot(seq(1,500),x,type="l", xlab="t", ylab="X_t")
 ```
 
-There is no obvious need for a transformation of the data to fit an ARMA model. Based on the plot it seems probable that both the mean and variance is constant with respect to time. (DETTE HADDE VÆRT FINT Å DEMONSTRERE)
+There is no obvious need for a transformation of the data to fit an ARMA model. Based on the plot it seems probable that both the mean and variance is constant with respect to time. 
+<!--(DETTE HADDE VÆRT FINT Å DEMONSTRERE)-->
 
 ```{r lagplot, echo=FALSE}
 lag.plot(x, 9, diag.col = "red")
@@ -210,7 +212,7 @@ ma <- c(theta1)
 sigma2 <- arima$sigma2
 sigma <- sqrt(sigma2)
 ```
-```{r acvf}
+```{r acvf,fig.cap="The autocovariance $\\hat{\\gamma}(h)$ \\label{fig:acf}"}
 lag.max <- 100
 acf<-acf(x,lag.max=lag.max)
 theoreticalacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1))
@@ -231,7 +233,7 @@ theoreticalpacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1),pacf=TRUE)
 lines(seq(1,(l-1)),theoreticalpacf,col=2,lty=3)
 ```
 
-We can simulate the process and compute the paramteres from the simulated process to get an empirical estimation of the distribution of the parameters. 
+We can simulate the process and compute the parameters from the simulated process to get an empirical estimation of the distribution of the parameters. 
 
 ```{r armasim}
 n_sim <- 100
@@ -446,12 +448,12 @@ lines(fore$pred, type="p", col=2)
 
 # Discussion
 
-Bla bla
-
+The autocovariance plot in figure \ref{fig:acf} shows at first glance a tendency to a period. However the value is rather low and might rather be the result of some cyclical noice. 
 
 # Conclusion
 
-This was ..
+The data we were given fits nicely with the assumption that it is an $ARMA(2,1)$ process. Additionally the $Z_t\sim \bf{WN}(0,\sigma^2)$ are likely normaly distributed.
+
 
 # Appendix
 
