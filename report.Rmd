@@ -49,13 +49,13 @@ X_t -\phi_1 X_{t-1} - \phi_2 X_{t-2} = Z_t + \theta_1 Z_{t-1}
 $$
 
 # Theory
-An expression for \(\{X_t | t \in \mathds{Z}\}\) satisfying equation \eqref{eq:arma} on the form
+A stationary solution of a process \(\{X_t | t \in \mathds{Z}\}\) satisfying equation \eqref{eq:arma} can be expressed on the form
 
 \begin{equation}
-X_t = \psi (B) Z_t = \sum_{i = -\infty}^\infty \psi_i Z_{t-i}
+X_t = \psi (B) Z_t = \sum_{i = -\infty}^\infty \psi_i Z_{t-i}.
 \end{equation}
 
-is said to be a stationary solution. A stationary solution exists, and is also unique, if no roots of the autoregressive polynomial \(\phi(z)\) lie on the unit circle. That is \(\phi(z)\neq0\) for \(|z|=1\). If \(X_t\) can be expressed in terms of \(Z_s,s \leq t\) we say that the process is causal. Such an expression is guaranteed to exist if no roots of \(\phi(z)\) lie on the unit disk, \(\phi(z)\neq0\) for \(|z|\leq1\). The expression then becomes
+A stationary solution exists, and is also unique, if no roots of the autoregressive polynomial \(\phi(z)\) lie on the unit circle. That is \(\phi(z)\neq0\) for \(|z|=1\). If \(X_t\) can be expressed in terms of \(\{Z_s|s \leq t\}\) we say that the process is causal. Such an expression is guaranteed to exist if no roots of \(\phi(z)\) lie on the unit disk, \(\phi(z)\neq0\) for \(|z|\leq1\). The expression then becomes
 
 \begin{equation}
   \label{eq:psi}
@@ -113,7 +113,8 @@ The \(ARMA(2,1)\) process (with zero mean) consists of 4 parameters that need to
 {\E}[X_t X_{t-h}] = {\E}[(Z_t + \theta_1 Z_{t-1} + \phi_1 X_{t-1} + \phi_2 X_{t-2})X_{t-h}]
 \end{equation}
 
-This then gives a set of equations containing the autocovariance function  \(\gamma(h)\) and the parameters. By using the sample autocovariance function \(\hat \gamma(h)\) in place of the autocovariance function we can solve the equations, resulting in estimates of the parameters of interest.
+This then gives a set of equations containing the autocovariance function  \(\gamma(h)=\E[X_t X_{t+h}]\) and the parameters. By using the sample autocovariance function \(\hat \gamma(h)\) in place of the autocovariance function we can solve the equations, resulting in estimates of the parameters of interest.
+
 
 The estimators found using this method may be biased and they often have high variance compared to other estimators. They are however useful as first approximations in numerical methods of estimation.
 
@@ -209,16 +210,17 @@ theoreticalpacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1),pacf=TRUE)
 lines(seq(1,(l-1)),theoreticalpacf,col=2,lty=3)
 ```
 
-```{r armasim}
-xsim <- arima.sim(n=500, list(ar=ar, ma=ma, order=ordr), sd=sigma)
-plot(xsim)
+We can simulate the process and compute the paramteres from the simulated process to get an empirical estimation of the distribution of the parameters. 
 
+```{r armasim}
 n_sim <- 100
 ts_sims_arima <- NULL
+ts_sims <-  matrix(data = 0, ncol=500, nrow=n_sim)
 ts_sims_param <- matrix(data = 0, ncol=3, nrow=n_sim, dimnames = list(NULL, c("phi1", "phi2", "theta1")))
 
 for (i in 1:n_sim) {
-  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma, order=ordr),sd=sigma)
+  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma,order=ordr),sd=sigma)
+  ts_sims[i,] <- ts_sim 
   ts <- arima(ts_sim, order = ordr)
   ts_sims_arima <- c(ts_sims_arima, ts)
   phi1 <- ts$coef[1]
@@ -228,12 +230,18 @@ for (i in 1:n_sim) {
   ts_sims_param[i,2] <- phi2
   ts_sims_param[i,3] <- theta1
 }
-#ts_sims_param
 mean_param <- colSums(ts_sims_param)/n_sim
 covariance_param <- t(ts_sims_param-mean_param)%*%(ts_sims_param-mean_param)
+```
+
+These simulations gives us an estimate of the mean and variance of the parameters.
+
+```{r}
 print(mean_param)
 print(covariance_param)
 ```
+
+
 
 Using the function `arima` we get MLE parameter estimates for the underlying process. 
 ```{r arimamodel}
