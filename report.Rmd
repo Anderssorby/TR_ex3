@@ -255,7 +255,46 @@ which gives us the roots \(z_1 \approx `r sprintf('%.3f', z_1)`\) and \(z_2 \app
 Likewise, since the MA polynomial \(\theta(z)\) has the single root \(z \approx `r sprintf('%.3f', 1/theta1)`\), \(X_t\) is also invertable, which means \(Z_t\) can be expressed as an \(AR(\infty)\) by equation \eqref{eq:pi}.
 
 ## Model prediction
+The projection \(P_n X_{n+h}\) is the linear combination of \(1,X_1,\hdots, X_n\) that forecasts \(X_{n+h}\) with minimum mean squared error. For a process with zero mean that is
 
+\begin{equation}
+P_n X_{n+h} = \sum_{i=1}^n a_i X_{n+h-i}
+\end{equation}
+
+such that
+
+\begin{equation}
+\frac{\partial}{\partial a_i} \E[(X_{n+h}-a_1 X_n - \dots - a_n X_1)^2] = 0, \hspace{1cm} i=1,\hdots,n.
+\end{equation}
+
+Evaluating the derivatives gives the equations
+
+\begin{equation}
+\E[(X_{n+h}-\sum_{i=1}^n a_i X_{n+1-i})X_{n+1-j}] = 0,  \hspace{1cm} j=1,\hdots,n
+\end{equation}
+
+which can be written in vector notation as 
+
+\begin{equation}
+\Gamma_n \bm{a}_n = \gamma_n(h)
+\end{equation}
+
+where 
+\begin{equation}
+\gamma_n = (\gamma(h),\gamma(h+1),\hdots,\gamma(h+n-1))',
+\end{equation}
+
+and
+\begin{equation}
+\Gamma_n = [\Cov(X_i,X_j)]_{i,j=1}^n.
+\end{equation}
+
+The expected prediction error is zero, and the expected mean square prediction error is given by
+
+\begin{equation}
+\E[(X_{n+h}-P_nX_{n+h})^2] = \gamma(0) - \bm{a}'\gamma_n(h).
+\end{equation}
+<!--
 The one-step ahead predictors, of an \(AR(p)\) process is easily found by considering the conditional expected value,
 
 \begin{equation}
@@ -276,29 +315,8 @@ Since our \(ARMA(2,1)\) model is invertible, it can be expressed as an \(AR(\inf
 
 where the coefficients \(\pi_i\) are given by equation \eqref{eq:picases}.
 In figure \ref{fig:onestep} we plot the process \(X_t\) in red along with the one-step ahead predictions \(\hat{X_t}\) in blue. The prediction tends to be slightly closer to the x-axis than the process itself, especially for the more extreme values. Intuitively this makes sense since the process' extreme values occur around extreme values for the underlying white noise, which the prediction expects to be zero. 
+-->
 
-The prediction operator \(P(\cdot|W)\) has the property
-
-\begin{equation}
-{\E}[(U-P(U|\bm{W}))^2] = \Var(U) - \bm{a}'\Cov(U,\bm{W}),
-\end{equation}
-
-which for the one-step ahead predictor becomes
-
-\begin{equation}
-{\E}[(X_{n+1}-P(X_{n+1}|X_n,X_{n-1},\hdots,X_1))^2] = \Var(X_{n+1}) - \bm{a}'\gamma_n,
-\end{equation}
-
-where 
-\begin{equation}
-\gamma_n = (\gamma(1),\gamma(2),\hdots,\gamma(n))',
-\end{equation}
-
-\begin{equation}
-\Gamma = [\Cov(X_i,X_j)]_{i,j=1}^n
-\end{equation}
-
-and \(\bm{a}\) is the solution to \(\Gamma \bm{a} = \gamma\).
 ```{r prediction}
 source('Zestimates.R')
 n<- 500
@@ -328,14 +346,41 @@ prod_arma <- function(Z, n){
 res1 <- prod_arma(Z, n=n)
 res2 <- prod_arma(Znew, n=0)
 ```
-
 ```{r onestep,fig.cap="\\label{fig:onestep}"}
-xhat <- rep(0,l)
-for(i in seq(2,500)){
-  xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
+#Doing it the proper way
+
+gamma<-ARMAacf(ar=ar,ma=ma,lag.max=(l-1))
+Gamma <- matrix(ncol=l,nrow=l)
+for (i in 1:l){
+  for (j in 1:l){
+    Gamma[i,j] <- gamma[abs(i-j)+1]
+  }
 }
-plot(x,col=2,type="l",xlim=c(1,500),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
+
+a <- vector("list",l-1)
+for(i in 1:(l-1)){
+  a[[i]] = solve(Gamma[1:i,1:i])%*%gamma[2:(i+1)]
+}
+
+xhat <-rep(0,l)
+xhatse <- rep(gamma[1],l)
+for (i in 2:l){
+  xhat[i] <- t(a[[i-1]])%*%x[(i-1):1]
+  xhatse <- gamma[1]-t(a[[i-1]])%*%gamma[2:i]
+}
+#Doing it the approximate way
+#xhat <- rep(0,l)
+#for(i in seq(2,500)){
+#  xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
+#}
+plot(x,col=2,type="l",xlim=c(1,100),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
 lines(xhat,col=4)
+U <- xhat+xhatse
+L <- xhat-xhatse
+xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
+polygon(xx, yy, border = 8, col = gray(.6, alpha = .2))
+#lines(xhat+xhatse,col=4,lty=3)
+#lines(xhat-xhatse,col=4,lty=3)
 #lines(Z,col=3)
 ```
 <!--
