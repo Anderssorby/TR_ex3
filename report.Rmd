@@ -15,7 +15,9 @@ keep_tex: true
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+install.packages("itsmr")
 library(latex2exp)
+library(itsmr)
 ```
 # Abstract
 Blabla
@@ -380,7 +382,9 @@ res2 <- prod_arma(Znew, n=0)
 ```{r onestep,fig.cap="\\label{fig:onestep}"}
 #Doing it the proper way
 
-gamma<-ARMAacf(ar=ar,ma=ma,lag.max=(l-1))
+itsmrarma<-arma(x,p=2,q=1)
+
+gamma<-aacvf(itsmrarma,499)
 Gamma <- matrix(ncol=l,nrow=l)
 for (i in 1:l){
   for (j in 1:l){
@@ -397,8 +401,11 @@ xhat <-rep(0,l)
 xhatse <- rep(gamma[1],l)
 for (i in 2:l){
   xhat[i] <- t(a[[i-1]])%*%x[(i-1):1]
-  xhatse <- gamma[1]-t(a[[i-1]])%*%gamma[2:i]
+  xhatse[i] <- sqrt(gamma[1]-t(a[[i-1]])%*%gamma[2:i])
 }
+
+
+#xhatse <- sqrt(xhatvar)
 #Doing it the approximate way
 #xhat <- rep(0,l)
 #for(i in seq(2,500)){
@@ -438,7 +445,7 @@ plot.arma_prod(res2)
 
 ``` {r forecasting}
 fore <- predict(arima,10)
-ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,520))
+ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,510))
 U <- fore$pred+fore$se
 L <- fore$pred-fore$se
 xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
