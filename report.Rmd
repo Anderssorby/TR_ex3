@@ -424,7 +424,7 @@ The cost of adding parameters to the model is made up for by the increased log l
 plot(arima$residuals,type="p",ylim=c(-.8,.8),ylab=TeX("X_t-\\hat{X}_t"))
 ```
 
-```{r residualacf, echo=FALSE, fig.cap="The autocorrelation of the residuals\\label{fig:residualacf}"}
+```{r residualacf, echo=FALSE, fig.cap="The residuals' sample autocorrelation\\label{fig:residualacf}"}
 resacf<-acf(arima$residuals,lag.max=50,plot=FALSE)
 plot(resacf,main="")
 ```
@@ -437,7 +437,7 @@ qqline(arima$residuals/sqrt(var(arima$residuals)),col = 2)
 ```
 
 The plot of the residuals in figure \ref{fig:residuals} seems to have a constant mean of zero and a homogeneous variance. 
-On the basis of the residuals' sample autocorrelation, plotted in figure \ref{figresidualacf}, we may not reject the hypothesis that the residuals are independently distributed. 
+On the basis of the residuals' sample autocorrelation, plotted in figure \ref{fig:residualacf}, we may not reject the hypothesis that the residuals are independently distributed. 
 Furthermore, the Q-Q plot in figure \ref{fig:qqr} show properties of the residuals that reflect those of the estimated white noise sequence $Z_t$.
 This is a very good sign that the model is appropriate.
 
