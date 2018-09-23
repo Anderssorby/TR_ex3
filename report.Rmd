@@ -15,37 +15,39 @@ keep_tex: true
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("itsmr")
+#install.packages("itsmr")
+#install.packages("forecast")
+library(forecast)
 library(latex2exp)
 library(itsmr)
 ```
-# Abstract
-Blabla
+\abstract{In this exercise we fit an $ARMA(2,1)$ model to a given dataset using maximum likelihood and then evaluate the quality of the model by considering the one-step prediction errors and the Akaike information criterion.
+}
 
 # Introduction
 
 ## The ARMA process
 A stationary process \(\{X_t\}\) is an \(ARMA(p,q)\) process if the following relation exists
-
 \begin{equation}
 \phi(B)X_t = \theta(B)Z_t
 \label{eq:arma}
 \end{equation}
 
-where \(Z_t \sim \bf{WN}(0, \sigma^2)\), and \(\phi(\cdot)\) and \(\theta(\cdot)\) are polynomials (with no common factors) given by
+\noindent where \(Z_t \sim \bf{WN}(0, \sigma^2)\), and \(\phi(\cdot)\) and \(\theta(\cdot)\) are polynomials (with no common factors) given by
 
 \begin{equation}
 \phi(z) = 1 - \phi_1 z - \phi_2 z^2 - \dots - \phi_p z^p
 \end{equation}
 
-and
+\noindent and
 \begin{equation}
 \theta(z) = 1 + \theta_1 z + \theta_2 z^2 +  \dots + \theta_q z^q,
 \end{equation}
 
-and B is the backward shift operator. That is \(B^j X_t = X_{t-j}, j \in \mathds{Z}\).
+\noindent and B is the backward shift operator. That is \(B^j X_t = X_{t-j}, j \in \mathds{Z}\).
 
-In particular an \(ARMA(2,1)\) process is given by
+\noindent In particular an \(ARMA(2,1)\) process is given by
+
 \begin{equation}
 X_t -\phi_1 X_{t-1} - \phi_2 X_{t-2} = Z_t + \theta_1 Z_{t-1}
 \end{equation}
@@ -57,7 +59,7 @@ A stationary solution of a process \(\{X_t | t \in \mathds{Z}\}\) satisfying equ
 X_t = \psi (B) Z_t = \sum_{i = -\infty}^\infty \psi_i Z_{t-i}.
 \end{equation}
 
-A stationary solution exists, and is also unique, if no roots of the autoregressive polynomial \(\phi(z)\) lie on the unit circle. That is \(\phi(z)\neq0\) for \(|z|=1\). If \(X_t\) can be expressed in terms of \(\{Z_s|s \leq t\}\) we say that the process is causal. Such an expression is guaranteed to exist if no roots of \(\phi(z)\) lie on the unit disk, \(\phi(z)\neq0\) for \(|z|\leq1\). The expression then becomes
+\noindent A stationary solution exists, and is also unique, if no roots of the autoregressive polynomial \(\phi(z)\) lie on the unit circle. That is \(\phi(z)\neq0\) for \(|z|=1\). If \(X_t\) can be expressed in terms of \(\{Z_s|s \leq t\}\) we say that the process is causal. Such an expression is guaranteed to exist if no roots of \(\phi(z)\) lie on the unit disk, \(\phi(z)\neq0\) for \(|z|\leq1\). The expression then becomes
 
 \begin{equation}
   \label{eq:psi}
@@ -70,14 +72,12 @@ By substituting the expression for \(X_t\) from \eqref{eq:psi} into equation \eq
   \phi(B)\psi(B)Z_t = \theta(B)Z_t, 
 \end{equation}
 
-which can only be satisfied if \(\phi(B)\psi(B) = \theta(B)\). For an \(ARMA(2,1)\) this means
-
+\noindent which can only be satisfied if \(\phi(B)\psi(B) = \theta(B)\). For an \(ARMA(2,1)\) this means
 \begin{equation}
   (1-\phi_1 B - \phi_2 B^2)\sum _{i=0}^\infty \psi_{i}B^i = 1 + \theta_1 B.
 \end{equation}
 
-Two polynomials are only equal if all of their coefficients are equal, which gives us the following expressions for \(\psi_i\)
-
+\noindent Two polynomials are only equal if all of their coefficients are equal, which gives us the following expressions for \(\psi_i\)
 \begin{equation}
 \label{eq:psicases}
   \psi_i = 
@@ -89,14 +89,12 @@ Two polynomials are only equal if all of their coefficients are equal, which giv
 \end{equation}
 
 The process is said to be invertible if no roots of \(\theta(z)\) lies on the unit disk. In that case we get the following expression for \(Z_t\)
-
 \begin{equation}
   \label{eq:pi}
   Z_t = \pi (B) X_t = \sum _{i=0}^\infty \pi_{i}X_{t-i}
 \end{equation}
 
-In the same way as for \(\phi_i\), we can find the expressions for \(\pi_i\)
-
+\noindent In the same way as for \(\phi_i\), we can find the expressions for \(\pi_i\)
 \begin{equation}
 \label{eq:picases}
   \pi_i = 
@@ -108,26 +106,24 @@ In the same way as for \(\phi_i\), we can find the expressions for \(\pi_i\)
   \end{cases}
 \end{equation}
 
-When the coefficients for \(\psi_i\) are known, the autocovariance function is easily found to be
+\noindent When the coefficients for \(\psi_i\) are known, the autocovariance function is easily found to be
 
 \begin{equation}
 \gamma(h)=\E(X_t,X_{t-h}) = E[(\sum _{i=0}^\infty \psi_{i}Z_{t-i})(\sum _{j=0}^\infty \psi_{j}Z_{t-h-j})] = \sum_{i=0}^\infty \sigma^2\psi_{i+h}\psi_i.
 \end{equation}
 
 Often times it is useful to have a closed form expression for \(\gamma(h)\). Such an expression can be found by considering 
-
 \begin{equation}
 \label{eq:gamma}
 \E[X_{t-h}\phi(B)X_t] = \E[X_{t-h}\theta(B)Z_t].
 \end{equation}
 
-For a causal process, we know that \(X_{t-h}\) and \(\theta(B)Z_t\) are uncorrelated for \(h>q\), hence
-
+\noindent For a causal process, we know that \(X_{t-h}\) and \(\theta(B)Z_t\) are uncorrelated for \(h>q\), hence
 \begin{equation}
 \gamma(h)=\phi_1\gamma(h-1)+\dots+\phi_p\gamma(h-p).
 \end{equation}
 
-which gives \(\gamma(h)\) from \(\gamma(0),\hdots,\gamma(p-1\) (which can be found by solving the set of equations from \eqref{eq:gamma} where \(h<p\)). 
+\noindent which gives \(\gamma(h)\) from \(\gamma(0),\hdots,\gamma(p-1\) (which can be found by solving the set of equations from \eqref{eq:gamma} where \(h<p\)). 
 
 ## Model parameter estimation
 The \(ARMA(2,1)\) process (with zero mean) consists of 4 parameters that need to be estimated. They are \(\phi_1, \phi_2, \theta_1 \text{ and } \sigma^2\). This can be done in a number of ways. A simple and consistent way is the method of moments. The idea is to take the expected value of the expression of \(X_t\) multiplied with \(X_{t-h}\).
@@ -136,8 +132,7 @@ The \(ARMA(2,1)\) process (with zero mean) consists of 4 parameters that need to
 {\E}[X_t X_{t-h}] = {\E}[(Z_t + \theta_1 Z_{t-1} + \phi_1 X_{t-1} + \phi_2 X_{t-2})X_{t-h}]
 \end{equation}
 
-This then gives a set of equations containing the autocovariance function  \(\gamma(h)=\E[X_t X_{t+h}]\) and the parameters. By using the sample autocovariance function \(\hat \gamma(h)\) in place of the autocovariance function we can solve the equations, resulting in estimates of the parameters of interest.
-
+\noindent This then gives a set of equations containing the autocovariance function  \(\gamma(h)=\E[X_t X_{t+h}]\) and the parameters. By using the sample autocovariance function \(\hat \gamma(h)\) in place of the autocovariance function we can solve the equations, resulting in estimates of the parameters of interest.
 
 The estimators found using this method may be biased and they often have high variance compared to other estimators. They are however useful as first approximations in numerical methods of estimation.
 
@@ -147,12 +142,12 @@ Another way is to use the maximum likelihood estimators. The Gaussian likelihood
   L(\bm\phi, \bm\theta, \sigma^2) = \frac{1}{\sqrt{(2\pi\sigma^2)^n r_0\hdots   r_{n-1}}}\text{exp}\left(\frac{-1}{2\sigma^2}\sum_{j=1}^n\frac{(X_j-\hat X_j)^2}{r_{j-1}}\right)
 \end{equation}
 
-Setting the partial derivatives of the log-likelihood equal to zero gives 
+\noindent Setting the partial derivatives of the log-likelihood equal to zero gives 
 
 \begin{equation}
   \hat\sigma^2 = n^{-1}S(\hat{\bm{\phi}}, \hat{\bm{\theta}}),
 \end{equation}
-where
+\noindent where
 \begin{equation}
 S(\hat{\bm{\phi}}, \hat{\bm{\theta}}) = \sum_{j=1}^n(X_j-\hat X_j)^2/r_{j-1},
 \end{equation}
@@ -161,13 +156,14 @@ and \(\hat{\bm{\phi}}, \hat{\bm{\theta}}\) are the values of \(\bm\phi, \bm\thet
   \ell(\bm\phi, \bm\theta) = \ln(n^{-1}S(\bm\phi, \bm\theta))+n^{-1}\sum_{j=1}^n\ln r_{j-1}
 \end{equation}
 
-The maximum likelihood estimates for \(\bm\phi\), \(\bm\theta\) and \(\sigma^2\) can then be found by numerical minimization, often using initial values found by some preliminary method.
+\noindent The maximum likelihood estimates for \(\bm\phi\), \(\bm\theta\) and \(\sigma^2\) can then be found by numerical minimization, often using initial values found by some preliminary method.
 For large samples the maximum likelihood estimator \(\hat\beta\) of \(\beta := (\phi_1,\ldots,\phi_p,\theta_1,\ldots,\theta_q)'\) is approximately normally distributed, that is 
 \begin{equation}
+\label{eq:betahat}
 \hat\beta \approx N(\beta,n^{-1}V(\beta))
 \end{equation}
 
-The covariance matrix \(n^{-1}V(\beta)\) can be approximated by \(2H^{-1}(\beta)\), where H is the Hessian matrix. As an alternative to using these asymptotic formulas, we will instead compute confidence bounds for the parameters by repeated estimation on simulated data for parameters equal to our estimates. 
+\noindent The covariance matrix \(n^{-1}V(\beta)\) can be approximated by \(2H^{-1}(\beta)\), where H is the Hessian matrix. As an alternative to using these asymptotic formulas, we will instead compute confidence bounds for the parameters by repeated estimation on simulated data for parameters equal to our estimates. 
 
 <!--
 REPEATED ESTIMATION ON SIMULATED DATA COMES HERE:
@@ -175,18 +171,22 @@ We need to confirm that a given process is indeed an $ARMA(2,1)$
 -->
 ##Model choice
 
-
-
-
+Given a collection of models, the Akaike information criterion estimates the quality of each model relative to the other models. 
+As such it is a means for model selection.
+The AIC is defined as 
+\begin{equation}
+AIC = 2k - 2\ln(\hat L),
+\end{equation}
+\noindent where $k$ is the number of estimated parameters in the model and $\hat{L}$ is the model's likelihood function's maximum value.
+The model with the lower AIC should be selected, rewarding goodness of fit while punishing overfitting.
 ```{r read, echo=FALSE}
 x = read.table("DataEx3G8.txt")
 x <- x[,1]
 l <- length(x)
 ```
-# Data analysis
-The language R has many built-in functions for analysing timeseries. 
 
-Our recieved realization of the process can be seen in the next plot.
+# Data analysis
+The realization of our recieved process can be seen in the next plot.
 
 ```{r TSMplot, echo=FALSE}
 plot(seq(1,500),x,type="l", xlab="t", ylab="X_t")
@@ -195,14 +195,14 @@ plot(seq(1,500),x,type="l", xlab="t", ylab="X_t")
 There is no obvious need for a transformation of the data to fit an ARMA model. Based on the plot it seems probable that both the mean and variance is constant with respect to time. 
 <!--(DETTE HADDE VÆRT FINT Å DEMONSTRERE)-->
 
-```{r lagplot, echo=FALSE}
+```{r lagplot, echo=FALSE,include=FALSE}
 lag.plot(x, 9, diag.col = "red")
 ```
 
-```{r arma}
+```{r arma,echo=FALSE}
 ordr <-c(2,0,1)
 
-arima=arima(x,order=ordr)
+arima=arima(x,order=ordr,include.mean=FALSE)
 
 phi1 <- arima$coef[1]
 phi2 <- arima$coef[2]
@@ -214,66 +214,63 @@ ma <- c(theta1)
 sigma2 <- arima$sigma2
 sigma <- sqrt(sigma2)
 ```
-```{r acvf,fig.cap="The autocovariance $\\hat{\\gamma}(h)$ \\label{fig:acf}"}
+```{r acvf,fig.cap="The sample autocorrelation $\\hat{\\rho}(h)$ \\label{fig:acf}",echo=FALSE}
 lag.max <- 100
-acf<-acf(x,lag.max=lag.max)
+acf<-acf(x,lag.max=lag.max,plot=FALSE)
+plot(acf,main="")
 theoreticalacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1))
 lines(seq(0,(l-1)),theoreticalacf,col=2,lty=3)
 ```
-```{r transform}
-p=10
-c=2*pi/p
-y=asin(c*x)
-```
 
-It is conceivable, based on the sample autocorrelation function, that there is some underlying seasonal lag. To check this we used the functions `decompose` and `stl` in R, both of which claims that the series is not periodic.  More importantly the sample ACF forces us to reject the hypothesis that the data is generated by an \(MA(q)\) model (atleast for \(q\leq 50\)).
+It is conceivable, based on the sample autocorrelation function in figure \ref{fig:acf}, that there is some underlying seasonal lag. To check this we used the functions `decompose` and `stl` in R, both of which claims that the series is not periodic.  More importantly the sample ACF forces us to reject the hypothesis that the data is generated by an \(MA(q)\) model (atleast for \(q\leq 50\)). The sample partial autocorrelation function in figure \ref{fig:pacf} does not force us to reject that the data is generated by an \(AR(q)\) series. Both of these figures include a dotted red line indicating the theoretical functions for the $ARMA(2,1)$ model we find below.
 
-```{r pacf}
+```{r pacf,echo=FALSE,fig.cap="The sample partial autocorrelation $\\hat{\\alpha}(h)$ \\label{fig:pacf}"}
 lag.max <- 100
-acf <- acf(x,type="partial",lag.max=lag.max)
+pacf <- acf(x,type="partial",lag.max=lag.max,plot=FALSE)
 theoreticalpacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1),pacf=TRUE)
+plot(pacf,main="")
 lines(seq(1,(l-1)),theoreticalpacf,col=2,lty=3)
 ```
 
-We can simulate the process and compute the parameters from the simulated process to get an empirical estimation of the distribution of the parameters. 
 
-```{r armasim}
-n_sim <- 100
+Using the function `arima` we get MLE parameter estimates for the underlying process. 
+```{r arimamodel,echo=FALSE}
+print(arima)
+```
+
+We can simulate the process using these coefficients and compute the resulting parameters to get an empirical estimation of their distributions. 
+
+```{r armasim,echo=FALSE}
+n_sim <- 500
 ts_sims_arima <- NULL
 ts_sims <-  matrix(data = 0, ncol=500, nrow=n_sim)
 ts_sims_param <- matrix(data = 0, ncol=3, nrow=n_sim, dimnames = list(NULL, c("phi1", "phi2", "theta1")))
 
 for (i in 1:n_sim) {
-  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma,order=ordr),sd=sigma)
+  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma,order=ordr),sd=sigma,n.start=500)
   ts_sims[i,] <- ts_sim 
   ts <- arima(ts_sim, order = ordr)
   ts_sims_arima <- c(ts_sims_arima, ts)
-  phi1 <- ts$coef[1]
-  phi2 <- ts$coef[2]
-  theta1 <- ts$coef[3]
-  ts_sims_param[i,1] <- phi1
-  ts_sims_param[i,2] <- phi2
-  ts_sims_param[i,3] <- theta1
+  phi1_sim <- ts$coef[1]
+  phi2_sim <- ts$coef[2]
+  theta1_sim <- ts$coef[3]
+  ts_sims_param[i,1] <- phi1_sim
+  ts_sims_param[i,2] <- phi2_sim
+  ts_sims_param[i,3] <- theta1_sim
 }
 mean_param <- colSums(ts_sims_param)/n_sim
-covariance_param <- t(ts_sims_param-mean_param)%*%(ts_sims_param-mean_param)
+covariance_param <- var(ts_sims_param)
 ```
 
-These simulations gives us an estimate of the mean and variance of the parameters.
+These simulations gives us an estimate of the mean and variance of the parameters, which are approximately multinormally distributed as in \eqref{eq:betahat}. We see that the simulated mean, covariance and standard error below is in agreement with the output of `arima`.
 
-```{r}
+```{r printsim,echo=FALSE}
 print(mean_param)
 print(covariance_param)
+print(sqrt(diag(covariance_param)))
 ```
 
-
-
-Using the function `arima` we get MLE parameter estimates for the underlying process. 
-```{r arimamodel}
-print(arima)
-```
-
-We can then check the causality criterion by solving
+Given the model parameters we can check the causality criterion by solving
 \begin{equation}
 \phi(z) = 1 - `r sprintf('%.3f', arima$coef[1])`z + `r sprintf('%.3f', abs(arima$coef[2]))`z^2 =0,
 \end{equation}
@@ -283,74 +280,11 @@ z_1=(phi1-sqrt(phi1^2 +4*phi2))/(-2*phi2)
 z_2=(phi1+sqrt(phi1^2 +4*phi2))/(-2*phi2)
 ```
 
-which gives us the roots \(z_1 \approx `r sprintf('%.3f', z_1)`\) and \(z_2 \approx `r sprintf('%.3f', z_2)`\). Since both these roots are outside the unit disk, \(X_t\) can be expressed as an \(MA(\infty)\) given by equation \eqref{eq:psi}.
+\noindent which gives us the roots \(z_1 \approx `r sprintf('%.3f', z_1)`\) and \(z_2 \approx `r sprintf('%.3f', z_2)`\). Since both these roots are outside the unit disk, \(X_t\) can be expressed as an \(MA(\infty)\) given by equation \eqref{eq:psi}.
 
-Likewise, since the MA polynomial \(\theta(z)\) has the single root \(z \approx `r sprintf('%.3f', 1/theta1)`\), \(X_t\) is also invertable, which means \(Z_t\) can be expressed as an \(AR(\infty)\) by equation \eqref{eq:pi}.
+Likewise, since the MA polynomial \(\theta(z)\) has the single root \(z \approx `r sprintf('%.3f', 1/theta1)`\), \(X_t\) is also invertable, which means \(Z_t\) can be expressed as an \(AR(\infty)\) by equation \eqref{eq:pi}. Since these coefficients approach zero very rapidly, we can use them along with our data to estimate the underlying noise fairly accurately. Figure \ref{fig:noise} shows a Q-Q plot indicating that the noise, and our process, is gaussian.
 
-## Model prediction
-The projection \(P_n X_{n+h}\) is the linear combination of \(1,X_1,\hdots, X_n\) that forecasts \(X_{n+h}\) with minimum mean squared error. For a process with zero mean that is
-
-\begin{equation}
-P_n X_{n+h} = \sum_{i=1}^n a_i X_{n+h-i}
-\end{equation}
-
-such that
-
-\begin{equation}
-\frac{\partial}{\partial a_i} \E[(X_{n+h}-a_1 X_n - \dots - a_n X_1)^2] = 0, \hspace{1cm} i=1,\hdots,n.
-\end{equation}
-
-Evaluating the derivatives gives the equations
-
-\begin{equation}
-\E[(X_{n+h}-\sum_{i=1}^n a_i X_{n+1-i})X_{n+1-j}] = 0,  \hspace{1cm} j=1,\hdots,n
-\end{equation}
-
-which can be written in vector notation as 
-
-\begin{equation}
-\Gamma_n \bm{a}_n = \gamma_n(h)
-\end{equation}
-
-where 
-\begin{equation}
-\gamma_n = (\gamma(h),\gamma(h+1),\hdots,\gamma(h+n-1))',
-\end{equation}
-
-and
-\begin{equation}
-\Gamma_n = [\Cov(X_i,X_j)]_{i,j=1}^n.
-\end{equation}
-
-The expected prediction error is zero, and the expected mean square prediction error is given by
-
-\begin{equation}
-\E[(X_{n+h}-P_nX_{n+h})^2] = \gamma(0) - \bm{a}'\gamma_n(h).
-\end{equation}
-<!--
-The one-step ahead predictors, of an \(AR(p)\) process is easily found by considering the conditional expected value,
-
-\begin{equation}
-{\E}[X_{n+1}|X_n,X_{n-1},\hdots,X_1] = {\E}[Z_{n+1}-\sum_{i=1}^p \phi_{i}X_{n+1-i}|X_n,X_{n-1},\hdots,X_1]
-\end{equation}
-
-which for \(n>p\) immediately gives the one-step ahead predictor for the \(AR(p)\) process
-
-\begin{equation}
-\hat X_{n+1} = \sum_{i=1}^p \phi_{i}X_{n+1-i}.
-\end{equation}
-
-Since our \(ARMA(2,1)\) model is invertible, it can be expressed as an \(AR(\infty)\). Hence the one-step ahead predictor can be given as 
-
-\begin{equation}
-\hat X_{n+1} \approx \sum_{i=1}^{n} \pi_{i}X_{n+1-i},
-\end{equation}
-
-where the coefficients \(\pi_i\) are given by equation \eqref{eq:picases}.
-In figure \ref{fig:onestep} we plot the process \(X_t\) in red along with the one-step ahead predictions \(\hat{X_t}\) in blue. The prediction tends to be slightly closer to the x-axis than the process itself, especially for the more extreme values. Intuitively this makes sense since the process' extreme values occur around extreme values for the underlying white noise, which the prediction expects to be zero. 
--->
-
-```{r prediction}
+```{r prediction,fig.cap="A quantile-quantile plot of the estimated noise and a normal distribution\\label{fig:noise}",echo=FALSE}
 source('Zestimates.R')
 n<- 500
 est <- estimateZ(x,n)
@@ -379,8 +313,282 @@ prod_arma <- function(Z, n){
 res1 <- prod_arma(Z, n=n)
 res2 <- prod_arma(Znew, n=0)
 ```
-```{r onestep,fig.cap="\\label{fig:onestep}"}
-#Doing it the proper way
+
+## Model prediction
+The projection \(P_n X_{n+h}\) is the linear combination of \(1,X_1,\hdots, X_n\) that forecasts \(X_{n+h}\) with minimum mean squared error. For a process with zero mean that is
+
+\begin{equation}
+P_n X_{n+h} = \sum_{i=1}^n a_i X_{n+h-i}
+\end{equation}
+
+\noindent such that
+
+\begin{equation}
+\frac{\partial}{\partial a_i} \E[(X_{n+h}-a_1 X_n - \dots - a_n X_1)^2] = 0, \hspace{1cm} i=1,\hdots,n.
+\end{equation}
+
+\noindent Evaluating the derivatives gives the equations
+
+\begin{equation}
+\E[(X_{n+h}-\sum_{i=1}^n a_i X_{n+1-i})X_{n+1-j}] = 0,  \hspace{1cm} j=1,\hdots,n
+\end{equation}
+
+\noindent which can be written in vector notation as 
+
+\begin{equation}
+\Gamma_n \bm{a}_n = \gamma_n(h)
+\end{equation}
+
+\noindent where 
+\begin{equation}
+\gamma_n = (\gamma(h),\gamma(h+1),\hdots,\gamma(h+n-1))',
+\end{equation}
+
+\noindent and
+\begin{equation}
+\Gamma_n = [\Cov(X_i,X_j)]_{i,j=1}^n.
+\end{equation}
+
+\noindent The expected prediction error is zero, and the expected mean square prediction error is given by
+
+\begin{equation}
+\E[(X_{n+h}-P_nX_{n+h})^2] = \gamma(0) - \bm{a}'\gamma_n(h).
+\end{equation}
+
+```{r onestep, echo=FALSE}
+itsmrarma<-arma(x,p=2,q=1)
+
+gamma<-aacvf(itsmrarma,499)
+Gamma <- matrix(ncol=l,nrow=l)
+for (i in 1:l){
+  for (j in 1:l){
+    Gamma[i,j] <- gamma[abs(i-j)+1]
+  }
+}
+
+a <- vector("list",l-1)
+for(i in 1:(l-1)){
+  a[[i]] = solve(Gamma[1:i,1:i])%*%gamma[2:(i+1)]
+}
+
+xhat <-rep(0,l)
+xhatse <- rep(gamma[1],l)
+for (i in 2:l){
+  xhat[i] <- t(a[[i-1]])%*%x[(i-1):1]
+  xhatse[i] <- sqrt(gamma[1]-t(a[[i-1]])%*%gamma[2:i])
+}
+```
+
+```{r onestepplot,fig.cap="One-step ahead predictions\\label{fig:onestep}",echo=FALSE}
+plot(x,col=2,type="l",xlim=c(1,100),main="",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
+lines(xhat,col=4)
+U <- xhat+xhatse
+L <- xhat-xhatse
+xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
+polygon(xx, yy, border = 8, col = gray(.6, alpha = .2))
+```
+
+
+In figure \ref{fig:onestep} we plot the process \(X_t\) in red along with the one-step ahead predictions \(\hat{X_t}\) in blue and the corresponding standard error in gray. The prediction tends to be slightly closer to the x-axis than the process itself, especially for the more extreme values. Intuitively this makes sense since the process' extreme values occur around extreme values for the underlying white noise, which the prediction expects to be zero. 
+
+``` {r forecasting,fig.cap="Forecasted values of the series\\label{fig:forecast}",echo=FALSE}
+fore <- predict(arima,20)
+ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,520),ylab=TeX("X_t"))
+U <- fore$pred+fore$se
+L <- fore$pred-fore$se
+xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
+polygon(xx, yy, border = 8, col = gray(.6, alpha = .2))
+lines(fore$pred, type="p", col=2)
+```
+
+Using the same linear predictor as above, we can forecast the next 20 values of \(X_t\) given \(X_1,\hdots,X_500\). This is done in figure \ref{fig:forecast}. As is to be expected, the forecast seems to gradually approach the series mean of zero with an expected error that approaches \(\sigma_X=\sqrt{\gamma(0)}\approx `r sprintf('%.3f',sqrt(gamma[1]))`\).
+
+# Discussion
+
+
+```{r modelchoice, echo=FALSE,eval=FALSE}
+af<-autofit(x,p=0:7,q=0:7)
+#aa<-auto.arima(x,d=0)
+```
+```{r bestmodel, echo=FALSE}
+arma52 <- arima(x,order=c(5,0,2),include.mean=FALSE)
+```
+
+The autocorrelation plot in figure \ref{fig:acf} shows at first glance a periodic tendency. However the value is rather low and might instead be the result of some coincidentally cyclical noice.
+
+The choice of an $ARMA(2,1)$ model gives an AIC of \(`r sprintf('%.2f',arima$aic)`\) and log likelihood \(`r sprintf('%.2f',arima$loglik)`\). 
+By using the function `autofit` to check all $ARMA(p,q)$ models where $p,q\leq 7$ we find that a better choice would be an $ARMA(5,2)$ which gives an AIC of \(`r sprintf('%.2f',arma52$aic)`\). 
+The cost of adding parameters to the model is made up for by the increased log likelihood \(`r sprintf('%.2f',arma52$loglik)`\). 
+
+```{r residuals, echo=FALSE, fig.cap="The observed one-step prediction errors\\label{fig:residuals}"}
+plot(arima$residuals,type="p",ylim=c(-.8,.8),ylab=TeX("X_t-\\hat{X}_t"))
+```
+
+```{r residualacf, echo=FALSE, fig.cap="The autocorrelation of the residuals\\label{fig:residualacf}"}
+resacf<-acf(arima$residuals,lag.max=50,plot=FALSE)
+plot(resacf,main="")
+```
+
+
+```{r residualqq,echo=FALSE,fig.cap="A quantile-quantile plot of the residuals and a normal distribution\\label{fig:qqr}"}
+qqr<-qqnorm(arima$residuals/sqrt(var(arima$residuals)),plot.it=FALSE)
+plot(qqr,main="",xlab="Theoretical Quantiles",ylab="Sample Quantiles")
+qqline(arima$residuals/sqrt(var(arima$residuals)),col = 2) 
+```
+
+The plot of the residuals in figure \ref{fig:residuals} seems to have a constant mean of zero and a homogeneous variance. 
+On the basis of the residuals' sample autocorrelation, plotted in figure \ref{figresidualacf}, we may not reject the hypothesis that the residuals are independently distributed. 
+Furthermore, the Q-Q plot in figure \ref{fig:qqr} show properties of the residuals that reflect those of the estimated white noise sequence $Z_t$.
+This is a very good sign that the model is appropriate.
+
+# Conclusion
+
+The data we were given fits nicely with an $ARMA(2,1)$ model. Additionally the corresponding $Z_t\sim \bf{WN}(0,\sigma^2)$ seems normally distributed. Even though the $ARMA(5,2)$ model is of a slightly higher quality according to the AIC, the behaviour of the residuals and estimated noise suggests that the data is very consistent with an $ARMA(2,1)$.
+
+
+# Appendix
+
+What follows is a complete copy of the computer code used by R markdown to produce the report.
+
+```{r appendix,eval=FALSE,echo=TRUE}
+library(forecast)
+library(latex2exp)
+library(itsmr)
+
+estimateZ <- function(x, n = 20) {
+  arima <- arima(x,order=c(2,0,1))
+  
+  # n number of pi-coeff to be calculated
+  l <- length(x)
+  m <- l-n # number of Z values to be estimated
+  
+  phi1 <- arima$coef[1]
+  phi2 <- arima$coef[2]
+  theta1 <- arima$coef[3]
+  sigma2 <- arima$sigma2
+  
+  # calculates n coefficients of pi
+  pi <- vector(length=n) 
+  pi[1] <- 1
+  pi[2] <- -phi1 - theta1*pi[1]
+  pi[3] <- -phi2 - theta1*pi[2]
+  for (i in seq(4,n)){
+    pi[i] <- -theta1*pi[i-1]
+  }
+  
+  # estimates Z for t>=n
+  Z <- rep(0,l) 
+  for (t in seq(1,l)){
+    Z[t] <- t(pi)[1:min(n,t)]%*%x[t:max(1,(t-n+1))]
+  }
+  res <- list(Z=Z, pi=pi, m = m, n = n, sigma2 = sigma2, sd = sqrt(sigma2), l = l)
+  class(res) <- "zestimate"
+  return(res)
+}
+
+plot.zestimate <- function(obj, ...) {
+  # Normal Q-Q plot
+  Z <- obj$Z
+  sigma <- obj$sd
+  
+  qq<-qqnorm(Z/sigma,plot.it=FALSE)
+  plot(qq,main="",xlab="Theoretical Quantiles",ylab="Sample Quantiles")
+  qqline(Z/sigma,col = 2) 
+}
+
+print.zestimate <- function(obj, ...) {
+  print("Estimate of Z for ARMA(2,1)")
+  print(obj$Z)
+}
+
+x = read.table("DataEx3G8.txt")
+x <- x[,1]
+l <- length(x)
+
+plot(seq(1,500),x,type="l", xlab="t", ylab="X_t")
+
+ordr <-c(2,0,1)
+
+arima=arima(x,order=ordr,include.mean=FALSE)
+
+phi1 <- arima$coef[1]
+phi2 <- arima$coef[2]
+ar <- c(phi1,phi2)
+
+theta1 <- arima$coef[3]
+ma <- c(theta1)
+
+sigma2 <- arima$sigma2
+sigma <- sqrt(sigma2)
+
+lag.max <- 100
+acf<-acf(x,lag.max=lag.max,plot=FALSE)
+plot(acf,main="")
+theoreticalacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1))
+lines(seq(0,(l-1)),theoreticalacf,col=2,lty=3)
+
+lag.max <- 100
+pacf <- acf(x,type="partial",lag.max=lag.max,plot=FALSE)
+theoreticalpacf <- ARMAacf(ar=ar,ma=ma,lag.max=(l-1),pacf=TRUE)
+plot(pacf,main="")
+lines(seq(1,(l-1)),theoreticalpacf,col=2,lty=3)
+
+print(arima)
+
+n_sim <- 500
+ts_sims_arima <- NULL
+ts_sims <-  matrix(data = 0, ncol=500, nrow=n_sim)
+ts_sims_param <- matrix(data = 0, ncol=3, nrow=n_sim, dimnames = list(NULL, c("phi1", "phi2", "theta1")))
+
+for (i in 1:n_sim) {
+  ts_sim <- arima.sim(n=500, list(ar=ar, ma=ma,order=ordr),sd=sigma,n.start=500)
+  ts_sims[i,] <- ts_sim 
+  ts <- arima(ts_sim, order = ordr)
+  ts_sims_arima <- c(ts_sims_arima, ts)
+  phi1_sim <- ts$coef[1]
+  phi2_sim <- ts$coef[2]
+  theta1_sim <- ts$coef[3]
+  ts_sims_param[i,1] <- phi1_sim
+  ts_sims_param[i,2] <- phi2_sim
+  ts_sims_param[i,3] <- theta1_sim
+}
+mean_param <- colSums(ts_sims_param)/n_sim
+covariance_param <- var(ts_sims_param)
+
+print(mean_param)
+print(covariance_param)
+print(sqrt(diag(covariance_param)))
+
+
+z_1=(phi1-sqrt(phi1^2 +4*phi2))/(-2*phi2)
+z_2=(phi1+sqrt(phi1^2 +4*phi2))/(-2*phi2)
+
+n<- 500
+est <- estimateZ(x,n)
+
+plot(est)
+#print(est)
+Z <- est$Z
+Znew <- rnorm(500,sd=est$sd)
+pi <- est$pi
+
+m <- est$m
+l <- est$l
+prod_arma <- function(Z, n){
+  pred <- rep(0, l)
+  residuals <- rep(0,l)
+  
+  for (i in seq(max(n+1,3), l)) {
+    pred[i] <- phi1*pred[i-1] + phi2*pred[i-2] + Z[i] + theta1*Z[i-1]
+    residuals[i] <- x[i] - pred[i]
+  }
+  res <- list(pred=pred, residuals=residuals)
+  class(res) <- "prod_arma"
+  return(res)
+}
+
+res1 <- prod_arma(Z, n=n)
+res2 <- prod_arma(Znew, n=0)
 
 itsmrarma<-arma(x,p=2,q=1)
 
@@ -404,68 +612,39 @@ for (i in 2:l){
   xhatse[i] <- sqrt(gamma[1]-t(a[[i-1]])%*%gamma[2:i])
 }
 
-
-#xhatse <- sqrt(xhatvar)
-#Doing it the approximate way
-#xhat <- rep(0,l)
-#for(i in seq(2,500)){
-#  xhat[i] <- -t(pi[2:min(n,i)])%*%x[(i-1):max(0,i-n+1)]
-#}
-plot(x,col=2,type="l",xlim=c(1,100),main="One-step ahead predictions",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
+plot(x,col=2,type="l",xlim=c(1,100),main="",ylab=TeX("X_t,\\hat{X}_t,Z_t"),xlab="Time")
 lines(xhat,col=4)
 U <- xhat+xhatse
 L <- xhat-xhatse
 xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
 polygon(xx, yy, border = 8, col = gray(.6, alpha = .2))
-#lines(xhat+xhatse,col=4,lty=3)
-#lines(xhat-xhatse,col=4,lty=3)
-#lines(Z,col=3)
-```
-<!--
-# ```{r one step predictions}
-# xhatt<- (x - arima$residuals) #mangler muligens en faktor sqrt(r(phi,theta))
-# ts.plot(x,xhat,col=c(2,4),xlim=c(400,500))
-# ```
--->
 
-
-```{r prediction-plot}
-
-
-plot.arma_prod <- function(prod) {
-  pred <- prod$pred
-  residuals <- prod$residuals
-  plot(pred[1:l], main = "Model prediction", ylab = TeX("X_t,\\hat{X}_t"), xlab = "Time", type = "l", col="blue")
-  lines(x[1:l], type = "l", col="red")
-  
-  plot(residuals[1:l])
-}
-plot.arma_prod(res2)
-```
-
-``` {r forecasting}
-fore <- predict(arima,10)
-ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,510))
+fore <- predict(arima,20)
+ts.plot(c(x,fore$pred),col=1:2,xlim=c(420,520),ylab=TeX("X_t"))
 U <- fore$pred+fore$se
 L <- fore$pred-fore$se
 xx = c(time(U), rev(time(U))); yy = c(L, rev(U))
 polygon(xx, yy, border = 8, col = gray(.6, alpha = .2))
 lines(fore$pred, type="p", col=2)
+
+af<-autofit(x,p=0:7,q=0:7)
+
+arma52 <- arima(x,order=c(5,0,2),include.mean=FALSE)
+
+plot(arima$residuals,type="p",ylim=c(-.8,.8),ylab=TeX("X_t-\\hat{X}_t"))
+
+resacf<-acf(arima$residuals,lag.max=50,plot=FALSE)
+plot(resacf,main="")
+
+qqr<-qqnorm(arima$residuals/sqrt(var(arima$residuals)),plot.it=FALSE)
+plot(qqr,main="",xlab="Theoretical Quantiles",ylab="Sample Quantiles")
+qqline(arima$residuals/sqrt(var(arima$residuals)),col = 2) 
 ```
 
-# Discussion
-
-The autocovariance plot in figure \ref{fig:acf} shows at first glance a tendency to a period. However the value is rather low and might rather be the result of some cyclical noice. 
-
-# Conclusion
-
-The data we were given fits nicely with the assumption that it is an $ARMA(2,1)$ process. Additionally the $Z_t\sim \bf{WN}(0,\sigma^2)$ are likely normaly distributed.
-
-
-# Appendix
-
-Everything not in the main section
-This also includes R-code as a whole
-
-# References
-
+\begin{thebibliography}{9}
+\bibitem{brockwelldavies}
+  Brockwell, Peter J., Davis, Richard A.,
+  \textit{Introduction to Time Series and Forecasting},
+  2nd edition,
+  2002.
+\end{thebibliography}

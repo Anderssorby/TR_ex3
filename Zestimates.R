@@ -34,7 +34,8 @@ plot.zestimate <- function(obj, ...) {
   Z <- obj$Z
   sigma <- obj$sd
   
-  qqnorm(Z/sigma)
+  qq<-qqnorm(Z/sigma,plot.it=FALSE)
+  plot(qq,main="",xlab="Theoretical Quantiles",ylab="Sample Quantiles")
   qqline(Z/sigma,col = 2) 
 }
 
